@@ -65,9 +65,9 @@ data <- read.csv(data.file,header = TRUE,sep = ";")
 # Editing the units
 data <- data %>%
   mutate(
-    NEE = NEE*10^-3*365,
-    RECO = RECO*10^-3*365,
-    GPP = GPP*10^-3*365
+    NEE = NEE * 10^-3 * 365,
+    RECO = RECO * 10^-3 * 365,
+    GPP = GPP * 10^-3 * 365
   )
 ```
 
