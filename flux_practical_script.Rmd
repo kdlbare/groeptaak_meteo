@@ -16,6 +16,7 @@ knitr::opts_chunk$set(warning = FALSE)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(naniar)
 ```
 
 **Meteorological data:** 
@@ -58,6 +59,14 @@ Data cleanup, units conversion; typical ranges, annual sums and averages
 Fluxname <- "ZM-Mon_daily"
 data.file <- file.path("./",paste0(Fluxname,".csv"))
 data <- read.csv(data.file,header = TRUE,sep = ";")
+
+```
+
+```{r cleaning data}
+# cleaning the data
+data <- data%>%
+  replace_with_na_if(.predicate = is.double,condition = ~.x < -1000)
+
 
 ```
 
