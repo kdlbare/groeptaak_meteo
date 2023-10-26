@@ -12,6 +12,7 @@ knitr::opts_chunk$set(message = FALSE)
 knitr::opts_chunk$set(warning = FALSE)
 ```
 
+
 **Meteorological data:** 
 (UFORA) You only need the data corresponding to your study site.
 
