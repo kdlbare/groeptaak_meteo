@@ -69,7 +69,6 @@ data <- data %>%
     RECO = RECO*10^-3*365,
     GPP = GPP*10^-3*365
   )
-
 ```
 
 
