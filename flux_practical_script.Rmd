@@ -1,0 +1,116 @@
+---
+title: "Flux analysis"
+date: "10/11/2022"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+**Meteorological data:** 
+(UFORA) You only need the data corresponding to your study site.
+
+- Time of the measurement (YEAR, MONTH, and DAY)
+- Daily average temperature T (°C)
+- Daily average night temperature, T_NIGHT (°C)
+- Daily average day temperature, T_DAY (°C)
+- Incoming shortwave radiation, SWDOWN (W/m²)
+- Incoming longwave radiation, LWDOWN (W/m²)
+- Vapor pressure deficit, VPD (hPa)
+- Rainfall, RAIN (mm)
+- Windspeed, WIND (m/s)
+- Net radiation, RN (W/m²)
+- Soil temperature, TSOIL (°C)
+- Soil heat flux, GF (W/m²)
+- Latent heat flux QLE (W/m²)
+- Sensible heat flux QH (W/m²)
+- Net Ecosystem Exchange, NEE (gC/m²/d)
+- Gross primary production, GPP (gC/m²/d)
+- Ecosystem respiration, Reco (gC/m²/d)
+
+**Additional helpful Metadata:**
+
+- World map of Köppen-Geiger climate classification (PDF)
+- Site information: Find from [fluxnet sites list](https://fluxnet.org/sites/site-list-and-pages) or just google the name of your site
+
+
+### Step 1: Explore your dataset 
+Data cleanup, units conversion; typical ranges, annual sums and averages  
+
+- Check and filter missing (NA) or impossible (e.g. very larges, -9999) values
+- Convert variables into easy interpretable units (land fluxes into kgC /m²/year or tC /ha/year)
+- Calculate the minimal and maximal value for each variable, as a quick check
+- Calculate annual sum of precipitation, and the annual mean for each other variable. 
+
+```{r Loading your data}
+# Loading data
+Fluxname <- "ZM-Mon_daily"
+data.file <- file.path("./",paste0(Fluxname,".csv"))
+data <- read.csv(data.file,header = TRUE,sep = ";")
+
+```
+
+
+### Step 2: Mean annual cycles
+Seasonal cycle, patterns, extreme events 
+
+- **Plot 1**: Produce mean seasonal cycle graphs (= you compile your data to obtain one average year) for each meteorological variable (in a single plot)
+- Check the correspondence of these plots: do patterns concur or differ? Why? Try to explain the causal relationship. 
+- **Plot 2**: Compare your average year with every single year of data. Are there any extreme events in your data? Document it.
+- **Plot 3**: Using bar plots, plot the average precipitation yearly cycle
+```{r }
+
+
+```
+
+
+### Step 3: Surface energy balance
+Radiation balance, energy closure, Bowen ratio 
+
+- **Plot 4**: Plot mean annual cycles for Rn, Qh, Qle, GF (W/m²), in one graph  and interpret the annual cycles.
+- **Plot 5**: Scatterplot of energy balance (Qh+Qle vs. Rn-GF) (W/m²), select only 1 year of your dataset for this plot, fit a linear regression line (include equation + R²). Compare with 1:1 line.
+- Analyze the closure of the energy balance. How much is the energy gap? What causes this? Did you expect such magnitude? Refer to literature in your answer.
+- Calculate the Bowen ratio (= Qh/Qle).
+```{r }
+
+```
+
+### Step 4: Carbon fluxes
+Carbon balance, carbon closure
+
+- **Plot 6**: mean annual cycles for GPP, Reco and NEE, all in one plot
+- Interpret the annual cycles. Is the site more a carbon source (NEE > 0) or a carbon sink (NEE < 0)?
+```{r}
+
+
+```
+
+
+### Step 5: Interpretation
+Climate type, links between variables, relation with ecosystem 
+
+- **Plot 7**: Are there links between different meteorological variables?
+- **Plot 8**: Are some of the land fluxes (GPP, Reco, NEE) correlated with one or several meteorological variables?
+- Compare climate type with that on other locations (e.g. other groups, textbook examples, papers, ...)
+- Comment on extreme events, inter-annual variability, anomalies, …
+- What is the relation between the climate and the site characteristics? What is the role of vegetation in this climate system?
+- Any surprising details?
+```{r}
+
+
+```
+
+
+### Useful R cheatsheets
+1. Summary of Rstudio functions: https://raw.githubusercontent.com/rstudio/cheatsheets/master/rstudio-ide.pdf
+2. R basic commands: https://raw.githubusercontent.com/rstudio/cheatsheets/master/base-r.pdf
+3. Data visualization: https://raw.githubusercontent.com/rstudio/cheatsheets/master/data-visualization-2.1.pdf
+4. Work with dates: https://raw.githubusercontent.com/rstudio/cheatsheets/main/lubridate.pdf
+5. More R cheatsheets: https://rstudio.com/resources/cheatsheets/
+
+
