@@ -12,6 +12,11 @@ knitr::opts_chunk$set(message = FALSE)
 knitr::opts_chunk$set(warning = FALSE)
 ```
 
+```{r libraries}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
 
 **Meteorological data:** 
 (UFORA) You only need the data corresponding to your study site.
@@ -53,6 +58,17 @@ Data cleanup, units conversion; typical ranges, annual sums and averages
 Fluxname <- "ZM-Mon_daily"
 data.file <- file.path("./",paste0(Fluxname,".csv"))
 data <- read.csv(data.file,header = TRUE,sep = ";")
+
+```
+
+```{r Unit conversion}
+# Editing the units
+data <- data %>%
+  mutate(
+    NEE = NEE*10^-3*365,
+    RECO = RECO*10^-3*365,
+    GPP = GPP*10^-3*365
+  )
 
 ```
 
