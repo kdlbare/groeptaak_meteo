@@ -78,6 +78,9 @@ data <- data %>%
     RECO = RECO*10^-3*365,
     GPP = GPP*10^-3*365
   )
+min <- data.frame(as.list(apply(data, 2, min, na.rm=TRUE)))
+max <- data.frame(as.list(apply(data, 2, max, na.rm=TRUE)))
+summarie <- rbind(min, max)
 ```
 
 
@@ -137,5 +140,4 @@ Climate type, links between variables, relation with ecosystem
 3. Data visualization: https://raw.githubusercontent.com/rstudio/cheatsheets/master/data-visualization-2.1.pdf
 4. Work with dates: https://raw.githubusercontent.com/rstudio/cheatsheets/main/lubridate.pdf
 5. More R cheatsheets: https://rstudio.com/resources/cheatsheets/
-
 
