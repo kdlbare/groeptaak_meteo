@@ -16,6 +16,7 @@ knitr::opts_chunk$set(warning = FALSE)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(naniar)
 ```
 
 **Meteorological data:** 
@@ -61,6 +62,14 @@ data <- read.csv(data.file,header = TRUE,sep = ";")
 
 ```
 
+```{r cleaning data}
+# cleaning the data
+data <- data%>%
+  replace_with_na_if(.predicate = is.double,condition = ~.x < -1000)
+
+
+```
+
 ```{r Unit conversion}
 # Editing the units
 data <- data %>%
@@ -69,6 +78,13 @@ data <- data %>%
     RECO = RECO * 10^-3 * 365,
     GPP = GPP * 10^-3 * 365
   )
+min <- data.frame(as.list(apply(data, 2, min, na.rm=TRUE)))
+max <- data.frame(as.list(apply(data, 2, max, na.rm=TRUE)))
+summarie <- rbind(min, max)
+
+precip_cumsum <- data %>%
+  group_by(YEAR)%>%
+  summarise(sum=sum(RAIN))
 ```
 
 
@@ -128,5 +144,4 @@ Climate type, links between variables, relation with ecosystem
 3. Data visualization: https://raw.githubusercontent.com/rstudio/cheatsheets/master/data-visualization-2.1.pdf
 4. Work with dates: https://raw.githubusercontent.com/rstudio/cheatsheets/main/lubridate.pdf
 5. More R cheatsheets: https://rstudio.com/resources/cheatsheets/
-
 
