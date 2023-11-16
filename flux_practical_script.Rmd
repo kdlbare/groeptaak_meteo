@@ -81,6 +81,10 @@ data <- data %>%
 min <- data.frame(as.list(apply(data, 2, min, na.rm=TRUE)))
 max <- data.frame(as.list(apply(data, 2, max, na.rm=TRUE)))
 summarie <- rbind(min, max)
+
+precip_cumsum <- data %>%
+  group_by(YEAR)%>%
+  summarise(sum=sum(RAIN))
 ```
 
 
