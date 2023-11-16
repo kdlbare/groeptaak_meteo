@@ -152,13 +152,15 @@ radiation_cycles <- data %>%
             mean_QH = mean(QH, na.rm=TRUE),
             mean_QLE = mean(QLE, na.rm=TRUE),
             mean_GF = mean(GF, na.rm=TRUE))
-
+date = as.Date(unique(format(as.Date(data$Date), "%m-%d")), "%m-%d")
 radiation_cycles$date=date
-ggplot(data=radiation_cycles) +
-  geom_point(mapping = aes(date, mean_RN, colour = 'yellow')) +
-  geom_point(mapping = aes(date, mean_QH, colour = 'red')) +
-  geom_point(mapping = aes(date, mean_QLE, colour = 'blue')) +
-  geom_point(mapping = aes(date, mean_GF, colour = 'brown'))
+radiation_cycles <- pivot_longer(radiation_cycles, cols=contains('mean'),
+                                 names_to = 'variables',
+                                 values_to = 'values')
+ggplot(data=radiation_cycles, aes(date, values, colour=variables)) +
+  geom_line()+
+  scale_colour_discrete(labels=c('Ground Heat Flux', 'Sensible Heat Flux', 
+                               'Latent Heat Flux', 'Net Radiation'))
 ```
 
 ### Step 4: Carbon fluxes
