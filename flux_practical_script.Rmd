@@ -109,7 +109,19 @@ Radiation balance, energy closure, Bowen ratio
 - Analyze the closure of the energy balance. How much is the energy gap? What causes this? Did you expect such magnitude? Refer to literature in your answer.
 - Calculate the Bowen ratio (= Qh/Qle).
 ```{r }
+radiation_cycles <- data %>%
+  group_by(MONTH, DAY)%>%
+  summarise(mean_RN = mean(RN,na.rm=TRUE),
+            mean_QH = mean(QH, na.rm=TRUE),
+            mean_QLE = mean(QLE, na.rm=TRUE),
+            mean_GF = mean(GF, na.rm=TRUE))
 
+radiation_cycles$date=date
+ggplot(data=radiation_cycles) +
+  geom_point(mapping = aes(date, mean_RN, colour = 'yellow')) +
+  geom_point(mapping = aes(date, mean_QH, colour = 'red')) +
+  geom_point(mapping = aes(date, mean_QLE, colour = 'blue')) +
+  geom_point(mapping = aes(date, mean_GF, colour = 'brown'))
 ```
 
 ### Step 4: Carbon fluxes
