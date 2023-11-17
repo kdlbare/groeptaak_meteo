@@ -107,6 +107,7 @@ averages_per_day_year <- data %>%
   group_by(DayOfYear) %>%
   summarize(across(c(T, T_NIGHT, T_DAY, SWDOWN, LWDOWN, VPD, RAIN, WIND, RN, TSOIL, GF, QLE, QH, NEE, RECO, GPP), mean, na.rm = TRUE))
 
+
 meteorological_data <- averages_per_day_year[, c("DayOfYear", "T", "T_NIGHT", "T_DAY", "VPD", "RAIN", "WIND", "TSOIL")]
 
 meteorological_data_long <- pivot_longer(meteorological_data, cols = -DayOfYear, names_to = "Variable", values_to = "Value")
@@ -121,19 +122,25 @@ get_season <- function(day) {
 meteorological_data_long <- meteorological_data_long %>%
   mutate(Season = sapply(DayOfYear, get_season))
 
-ggplot(meteorological_data_long, aes(x = meteorological_data_long$DayOfYear, 
-                                     y = meteorological_data_long$Value, 
-                                     color = meteorological_data_long$Variable)) +
+#PLOT 1
+ggplot(data=meteorological_data_long, aes(x = DayOfYear, 
+                                     y = Value, 
+                                     color = Variable)) +
   geom_line() +
-  geom_smooth(aes(group = Variable), method = "loess", se = FALSE, color = "black") +  # Adding a smoothed line
-  geom_rect(data = data.frame(xmin = c(80, 172, 264, 355), xmax = c(172, 264, 355, 366)),
-            aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf, fill = factor(seq(1, 4))),
-            alpha = 0.1) +  # Shaded bands for seasons
-  scale_fill_manual(values = c("green", "orange", "yellow", "blue"), guide = FALSE) +  # Custom colors for seasons
+geom_vline(xintercept=c(80,172,264,355))+
   labs(title = "Meteorological Variables Across Days of the Year",
        x = "Day of the Year",
        y = "Average Value") +
-  theme_minimal()
+  scale_color_manual(values=c('blue', 'red', 'orange', 'black', 'brown', 'purple','green'))
+
+
+#PLOT 2
+extended_data <- merge(data, averages_per_day_year, by='DayOfYear')
+extended_data$YEAR <- as.character(extended_data$YEAR)
+
+ggplot(extended_data, aes(x=T.y, y=T.x, color=YEAR))+
+  geom_point()+
+  geom_abline(slope=1, intercept=0)
 
 ```
 
