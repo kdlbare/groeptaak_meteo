@@ -17,6 +17,8 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(naniar)
+library(ggpubr)
+library(patchwork)
 ```
 
 **Meteorological data:** 
@@ -138,10 +140,59 @@ geom_vline(xintercept=c(80,172,264,355))+
 extended_data <- merge(data, averages_per_day_year, by='DayOfYear')
 extended_data$YEAR <- as.character(extended_data$YEAR)
 
-ggplot(extended_data, aes(x=T.y, y=T.x, color=YEAR))+
-  geom_point()+
-  geom_abline(slope=1, intercept=0)
+legende = c(rep(FALSE, 7),TRUE, rep(FALSE, 8))
+for (i in 1:16){
+  name <- paste0('plot_', i)
+  assign(name, ggplot(extended_data, aes(x=.data[[colnames(extended_data)[21+i]]],
+                                         y=.data[[colnames(extended_data)[4+i]]], 
+                                         color=YEAR))+
+           geom_point(show.legend = legende[i])+
+           geom_abline(slope=1, intercept=0)+
+           labs(x = colnames(extended_data)[21+i],
+                y = colnames(extended_data)[4+i]))
+}
 
+
+samen <- ggarrange(plot_1, plot_2, plot_3, plot_4,
+                   plot_5, plot_6, plot_7, plot_8,
+                   plot_9, plot_10, plot_11, plot_12,
+                   plot_13, plot_14, plot_15, plot_16,
+                   ncol = 4, nrow = 4, common.legend=TRUE)
+samen
+
+for (i in 1:16){
+  name <- paste0('plot_', i)
+  assign(name, ggplot(extended_data, aes(x=DayOfYear, 
+                                         color=YEAR))+
+           geom_line(aes(y=.data[[colnames(extended_data)[21+i]]]), show.legend = legende[i])+
+           geom_line(aes(y=.data[[colnames(extended_data)[4+i]]]), show.legend = legende[i])+
+           labs(x = 'Day of the year',
+                y = colnames(extended_data)[4+i]))
+}
+
+
+samen2 <- ggarrange(plot_1, plot_2, plot_3, plot_4,
+                   plot_5, plot_6, plot_7, plot_8,
+                   plot_9, plot_10, plot_11, plot_12,
+                   plot_13, plot_14, plot_15, plot_16,
+                   ncol = 4, nrow = 4, common.legend=TRUE)
+samen2
+
+#PLOT 3
+average_rain_per_month <- data%>%
+  group_by(MONTH, DAY)%>%
+  summarise(rain = mean(RAIN))%>%
+  ungroup()%>%
+  group_by(MONTH)%>%
+  summarise(rain=sum(rain))
+#average_rain_per_month <- average_rain_per_month[order(average_rain_per_month$MONTH),]
+regen <- ggplot(average_rain_per_month, aes(x=MONTH, y=rain))+
+  geom_histogram(stat='identity', fill='blue')+
+  scale_x_discrete(limits=1:12,
+                   name = 'month')+
+  scale_y_discrete(name='average rain (mm/month)',
+                   limits=c(0,50,100, 150))
+regen
 ```
 
 
