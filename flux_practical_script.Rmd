@@ -19,6 +19,7 @@ library(ggplot2)
 library(naniar)
 library(ggpubr)
 library(patchwork)
+library(PerformanceAnalytics)
 ```
 
 **Meteorological data:** 
@@ -215,10 +216,27 @@ radiation_cycles$date=date
 radiation_cycles <- pivot_longer(radiation_cycles, cols=contains('mean'),
                                  names_to = 'variables',
                                  values_to = 'values')
+#PLOT 4
 ggplot(data=radiation_cycles, aes(date, values, colour=variables)) +
   geom_line()+
   scale_colour_discrete(labels=c('Ground Heat Flux', 'Sensible Heat Flux', 
                                'Latent Heat Flux', 'Net Radiation'))
+
+
+#PLOT 5
+P5_data <- data%>%
+  filter(YEAR==2008)%>%
+  mutate(QH_QLE = QH+QLE,
+         RN_GF = RN-GF)
+ggplot(P5_data, aes(x=RN_GF, y=QH_QLE))+
+  geom_point()+
+  geom_smooth(method = 'lm', se=FALSE, col = 'red')+
+  stat_regline_equation(label.x = 0, label.y=170)+
+  stat_cor(label.x = 0, label.y=180)+
+  geom_abline(intercept=0, slope=1, linetype=2)+
+  labs(x= 'Rn - G (W/m²)', y='Qle + Qh (W/m²)')
+
+Bowen_ratio = P5_data$QH/P5_data$QLE
 ```
 
 ### Step 4: Carbon fluxes
@@ -227,7 +245,13 @@ Carbon balance, carbon closure
 - **Plot 6**: mean annual cycles for GPP, Reco and NEE, all in one plot
 - Interpret the annual cycles. Is the site more a carbon source (NEE > 0) or a carbon sink (NEE < 0)?
 ```{r}
-
+#PLOT 6
+P6_data <- pivot_longer(averages_per_day_year, cols=c("NEE", "RECO", "GPP"),
+                        names_to = 'variables',
+                        values_to = 'values')
+ggplot(P6_data, aes(x=DayOfYear, y=values, col=variables))+
+  geom_line()+
+  labs(x = 'Day of Year', y= 'average carbon fluxes (kgC/m²/year)')
 
 ```
 
@@ -242,7 +266,15 @@ Climate type, links between variables, relation with ecosystem
 - What is the relation between the climate and the site characteristics? What is the role of vegetation in this climate system?
 - Any surprising details?
 ```{r}
+#PLOT 7
+P7_data <- select(data, c("T", "T_NIGHT", "T_DAY", "VPD", "RAIN", "WIND", "TSOIL"))
+chart.Correlation(P7_data)
 
+#PLOT 8
+P8_data <- data%>%
+  filter(YEAR>2006)%>%
+  select(c("T", "T_NIGHT", "T_DAY", "VPD", "RAIN", "WIND", "TSOIL", "NEE", "GPP", "RECO"))
+chart.Correlation(P8_data)
 
 ```
 
