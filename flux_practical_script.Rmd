@@ -111,7 +111,9 @@ averages_per_day_year <- data %>%
   summarize(across(c(T, T_NIGHT, T_DAY, SWDOWN, LWDOWN, VPD, RAIN, WIND, RN, TSOIL, GF, QLE, QH, NEE, RECO, GPP), mean, na.rm = TRUE))
 
 
-meteorological_data <- averages_per_day_year[, c("DayOfYear", "T", "T_NIGHT", "T_DAY", "VPD", "RAIN", "WIND", "TSOIL")]
+meteorological_data <- averages_per_day_year[, c("DayOfYear", "T", "T_NIGHT", "T_DAY","SWDOWN","LWDOWN", "VPD", "RAIN", "WIND", "TSOIL")]%>%
+  mutate(SWDOWN=SWDOWN/100,
+         LWDOWN=LWDOWN/100)
 
 meteorological_data_long <- pivot_longer(meteorological_data, cols = -DayOfYear, names_to = "Variable", values_to = "Value")
 
@@ -134,7 +136,10 @@ geom_vline(xintercept=c(80,172,264,355))+
   labs(title = "Meteorological Variables Across Days of the Year",
        x = "Day of the Year",
        y = "Average Value") +
-  scale_color_manual(values=c('blue', 'red', 'orange', 'black', 'brown', 'purple','green'))
+  scale_color_manual(values=c('darkgreen','blue','#FF00CC', 'red', 'orange', 'black', 'brown', 'purple','green'), 
+                     labels = c('LW down (hW/m²)', 'rain (mm/dag)', 'SW down (hW/m²)', 'T (°C)',
+                                'dag T (°C)', 'nacht T (°C)', 'bodem T (°C)', 'VPD (hPa)',
+                                'wind (m/s)'))
 
 
 #PLOT 2
@@ -267,13 +272,13 @@ Climate type, links between variables, relation with ecosystem
 - Any surprising details?
 ```{r}
 #PLOT 7
-P7_data <- select(data, c("T", "T_NIGHT", "T_DAY", "VPD", "RAIN", "WIND", "TSOIL"))
+P7_data <- select(data, c("T", "T_NIGHT", "T_DAY","SWDOWN","LWDOWN", "VPD", "RAIN", "WIND", "TSOIL"))
 chart.Correlation(P7_data)
 
 #PLOT 8
 P8_data <- data%>%
   filter(YEAR>2006)%>%
-  select(c("T", "T_NIGHT", "T_DAY", "VPD", "RAIN", "WIND", "TSOIL", "NEE", "GPP", "RECO"))
+  select(c("T", "T_NIGHT", "T_DAY","SWDOWN","LWDOWN", "VPD", "RAIN", "WIND", "TSOIL", "NEE", "GPP", "RECO"))
 chart.Correlation(P8_data)
 
 ```
