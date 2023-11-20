@@ -112,8 +112,8 @@ averages_per_day_year <- data %>%
 
 
 meteorological_data <- averages_per_day_year[, c("DayOfYear", "T", "T_NIGHT", "T_DAY","SWDOWN","LWDOWN", "VPD", "RAIN", "WIND", "TSOIL")]%>%
-  mutate(SWDOWN=SWDOWN/100,
-         LWDOWN=LWDOWN/100)
+  mutate(SWDOWN=SWDOWN/10,
+         LWDOWN=LWDOWN/10)
 
 meteorological_data_long <- pivot_longer(meteorological_data, cols = -DayOfYear, names_to = "Variable", values_to = "Value")
 
@@ -136,8 +136,8 @@ geom_vline(xintercept=c(80,172,264,355))+
   labs(title = "Meteorological Variables Across Days of the Year",
        x = "Day of the Year",
        y = "Average Value") +
-  scale_color_manual(values=c('darkgreen','blue','#FF00CC', 'red', 'orange', 'black', 'brown', 'purple','green'), 
-                     labels = c('LW down (hW/m²)', 'rain (mm/dag)', 'SW down (hW/m²)', 'T (°C)',
+  scale_color_manual(values=c('darkgreen','blue','green', 'red', 'orange', 'black', 'brown', 'purple','#FF00CC'), 
+                     labels = c('LW down (daW/m²)', 'rain (mm/dag)', 'SW down (daW/m²)', 'T (°C)',
                                 'dag T (°C)', 'nacht T (°C)', 'bodem T (°C)', 'VPD (hPa)',
                                 'wind (m/s)'))
 
