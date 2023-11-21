@@ -118,10 +118,10 @@ meteorological_data <- averages_per_day_year[, c("DayOfYear", "T", "T_NIGHT", "T
 meteorological_data_long <- pivot_longer(meteorological_data, cols = -DayOfYear, names_to = "Variable", values_to = "Value")
 
 get_season <- function(day) {
-  if(day >= 80 && day <= 172) return("Spring")
-  else if(day > 172 && day <= 264) return("Summer")
-  else if(day > 264 && day <= 355) return("Autumn")
-  else return("Winter")
+  if(day >= 80 && day <= 172) return("herfst")
+  else if(day > 172 && day <= 264) return("winter")
+  else if(day > 264 && day <= 355) return("lente")
+  else return("zomer")
 }
 
 meteorological_data_long <- meteorological_data_long %>%
@@ -133,25 +133,46 @@ ggplot(data=meteorological_data_long, aes(x = DayOfYear,
                                      color = Variable)) +
   geom_line() +
 geom_vline(xintercept=c(80,172,264,355))+
-  labs(title = "Meteorological Variables Across Days of the Year",
-       x = "Day of the Year",
-       y = "Average Value") +
-  scale_color_manual(values=c('darkgreen','blue','green', 'red', 'orange', 'black', 'brown', 'purple','#FF00CC'), 
-                     labels = c('LW down (daW/m²)', 'rain (mm/dag)', 'SW down (daW/m²)', 'T (°C)',
+  labs(title = "Gemiddelde meteo variabelen per dag van het jaar",
+       x = "Dag van het jaar",
+       y = "gemiddelde waarde") +
+  scale_color_manual(values=c('darkgreen','blue','green', 'red', 'orange', 'black', 'brown',
+                              'purple','#FF00CC'), 
+                     labels = c('LW down (daW/m²)', 'regen (mm/dag)', 'SW down (daW/m²)', 'T (°C)',
                                 'dag T (°C)', 'nacht T (°C)', 'bodem T (°C)', 'VPD (hPa)',
-                                'wind (m/s)'))
+                                'wind (m/s)'))+
+  annotate("text", x=30, y=40, label = "zomer")+
+  annotate("text", x=110, y=40, label = "herfst")+
+  annotate("text", x=202, y=40, label = "winter")+
+  annotate("text", x=294, y=40, label = "lente")
 
 
 #PLOT 2
 extended_data <- merge(data, averages_per_day_year, by='DayOfYear')
 extended_data$YEAR <- as.character(extended_data$YEAR)
+colnames(extended_data) <- c('DayOfYear', 'jaar', 'maand', 'dag', 
+                             'T (°C)', 'nacht T (°C)', 'dag T (°C)', 
+                             'SW down (W/m²)', 'LW down (W/m²)', 'VPD (hPa)',
+                             'regen (mm)', 'wind (m/s)','RN (W/m²)',
+                             'bodem T (°C)', 'GF (W/m²)', 'QLE (W/m²)',
+                             'QH (W/m²)','NEE (kgC/m²/jaar)', 
+                             'RECO (kgC/m²/jaar)', 'GPP (kgC/m²/jaar)',
+                             'Date','gem.T (°C)', 'gem.nacht T (°C)', 
+                             'gem.dag T (°C)','gem.SW down (W/m²)',
+                             'gem.LW down (W/m²)', 'gem.VPD (hPa)',
+                             'gem.regen (mm)', 'gem.wind (m/s)',
+                             'gem.RN (W/m²)','gem.bodem T (°C)',
+                             'gem.GF (W/m²)', 'gem.QLE (W/m²)',
+                             'gem.QH (W/m²)','gem.NEE (kgC/m²/jaar)', 
+                             'gem.RECO (kgC/m²/jaar)', 'gem.GPP (kgC/m²/jaar)'
+                             )
 
 legende = c(rep(FALSE, 7),TRUE, rep(FALSE, 8))
 for (i in 1:16){
   name <- paste0('plot_', i)
   assign(name, ggplot(extended_data, aes(x=.data[[colnames(extended_data)[21+i]]],
                                          y=.data[[colnames(extended_data)[4+i]]], 
-                                         color=YEAR))+
+                                         color=jaar))+
            geom_point(show.legend = legende[i])+
            geom_abline(slope=1, intercept=0)+
            labs(x = colnames(extended_data)[21+i],
@@ -169,10 +190,10 @@ samen
 for (i in 1:16){
   name <- paste0('plot_', i)
   assign(name, ggplot(extended_data, aes(x=DayOfYear, 
-                                         color=YEAR))+
+                                         color=jaar))+
            geom_line(aes(y=.data[[colnames(extended_data)[21+i]]]), show.legend = legende[i])+
            geom_line(aes(y=.data[[colnames(extended_data)[4+i]]]), show.legend = legende[i])+
-           labs(x = 'Day of the year',
+           labs(x = 'Dag van het Jaar',
                 y = colnames(extended_data)[4+i]))
 }
 
@@ -195,8 +216,8 @@ average_rain_per_month <- data%>%
 regen <- ggplot(average_rain_per_month, aes(x=MONTH, y=rain))+
   geom_histogram(stat='identity', fill='blue')+
   scale_x_discrete(limits=1:12,
-                   name = 'month')+
-  scale_y_discrete(name='average rain (mm/month)',
+                   name = 'Maand')+
+  scale_y_discrete(name='gemiddelde regenval (mm)',
                    limits=c(0,50,100, 150))
 regen
 ```
@@ -225,7 +246,11 @@ radiation_cycles <- pivot_longer(radiation_cycles, cols=contains('mean'),
 ggplot(data=radiation_cycles, aes(date, values, colour=variables)) +
   geom_line()+
   scale_colour_discrete(labels=c('Ground Heat Flux', 'Sensible Heat Flux', 
-                               'Latent Heat Flux', 'Net Radiation'))
+                               'Latent Heat Flux', 'Net Radiation'),
+                        name = 'variabelen')+
+  labs(x='datum',
+       y= 'straling (W/m²)',
+       title = 'stralingsverloop 2008')
 
 
 #PLOT 5
@@ -239,7 +264,8 @@ ggplot(P5_data, aes(x=RN_GF, y=QH_QLE))+
   stat_regline_equation(label.x = 0, label.y=170)+
   stat_cor(label.x = 0, label.y=180)+
   geom_abline(intercept=0, slope=1, linetype=2)+
-  labs(x= 'Rn - G (W/m²)', y='Qle + Qh (W/m²)')
+  labs(x= 'Rn - G (W/m²)', y='Qle + Qh (W/m²)',
+       title = 'Visualisatie Energieverlies 2008')
 
 Bowen_ratio = P5_data$QH/P5_data$QLE
 ```
@@ -256,7 +282,9 @@ P6_data <- pivot_longer(averages_per_day_year, cols=c("NEE", "RECO", "GPP"),
                         values_to = 'values')
 ggplot(P6_data, aes(x=DayOfYear, y=values, col=variables))+
   geom_line()+
-  labs(x = 'Day of Year', y= 'average carbon fluxes (kgC/m²/year)')
+  labs(x = 'Dag van het Jaar', y= 'C fluxen (kgC/m²/jaar)',
+       title = 'gemiddelde C fluxen')+
+  scale_color_discrete(name='variabelen')
 
 ```
 
@@ -272,13 +300,20 @@ Climate type, links between variables, relation with ecosystem
 - Any surprising details?
 ```{r}
 #PLOT 7
-P7_data <- select(data, c("T", "T_NIGHT", "T_DAY","SWDOWN","LWDOWN", "VPD", "RAIN", "WIND", "TSOIL"))
+P7_data <- select(extended_data, c('T (°C)', 'nacht T (°C)',
+                                   'dag T (°C)','SW down (W/m²)',
+                                   'LW down (W/m²)', 'VPD (hPa)',
+                                   'regen (mm)', 'wind (m/s)',
+                                   'bodem T (°C)'))
 chart.Correlation(P7_data)
 
 #PLOT 8
-P8_data <- data%>%
-  filter(YEAR>2006)%>%
-  select(c("T", "T_NIGHT", "T_DAY","SWDOWN","LWDOWN", "VPD", "RAIN", "WIND", "TSOIL", "NEE", "GPP", "RECO"))
+P8_data <- extended_data%>%
+  filter(jaar>2006)%>%
+  select(c('T (°C)', 'nacht T (°C)','dag T (°C)','SW down (W/m²)',
+           'LW down (W/m²)', 'VPD (hPa)', 'regen (mm)', 
+           'wind (m/s)','bodem T (°C)', "NEE (kgC/m²/jaar)",
+           "GPP (kgC/m²/jaar)", "RECO (kgC/m²/jaar)"))
 chart.Correlation(P8_data)
 
 ```
