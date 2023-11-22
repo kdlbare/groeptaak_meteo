@@ -114,9 +114,7 @@ averages_per_month <- data %>%
   group_by(MONTH) %>%
   summarize(across(c(T, T_NIGHT, T_DAY, SWDOWN, LWDOWN, VPD, RAIN, WIND, RN, TSOIL, GF, QLE, QH, NEE, RECO, GPP), mean, na.rm = TRUE))
 
-meteorological_data <- averages_per_day_year[, c("DayOfYear", "T", "T_NIGHT", "T_DAY","SWDOWN","LWDOWN", "VPD", "RAIN", "WIND", "TSOIL")]%>%
-  mutate(SWDOWN=SWDOWN/10,
-         LWDOWN=LWDOWN/10)
+meteorological_data <- averages_per_day_year[, c("DayOfYear", "T", "VPD", "RAIN", "WIND", "TSOIL")]
 
 meteorological_data_long <- pivot_longer(meteorological_data, cols = -DayOfYear, names_to = "Variable", values_to = "Value")
 
@@ -135,14 +133,12 @@ ggplot(data=meteorological_data_long, aes(x = DayOfYear,
                                      y = Value, 
                                      color = Variable)) +
   geom_line() +
-geom_vline(xintercept=c(121,244))+
+  geom_vline(xintercept=c(121,244))+
   labs(title = "Gemiddelde meteo variabelen per dag van het jaar",
        x = "Dag van het jaar",
        y = "gemiddelde waarde") +
-  scale_color_manual(values=c('darkgreen','blue','green', 'red', 'orange', 'black', 'brown',
-                              'purple','#FF00CC'), 
-                     labels = c('LW down (daW/m²)', 'regen (mm/dag)', 'SW down (daW/m²)', 'T (°C)',
-                                'dag T (°C)', 'nacht T (°C)', 'bodem T (°C)', 'VPD (hPa)',
+  scale_color_manual(values=c('blue', 'red', 'orange', 'black', 'purple'), 
+                     labels = c('regen (mm/dag)', 'T (°C)', 'bodem T (°C)', 'VPD (hPa)',
                                 'wind (m/s)'))+
   annotate("text", x=50, y=40, label = "nat seizoen")+
   annotate("text", x=180, y=40, label = "droog seizoen")+
@@ -218,13 +214,14 @@ average_rain_per_month <- data%>%
 coeff <- 5
 regen <- ggplot(average_rain_per_month, aes(x=MONTH, y=rain))+
   geom_histogram(stat='identity', fill='blue')+
-  geom_line(data=averages_per_month, aes(x=MONTH, y=T*coeff), col = 'red')+
-  geom_point(data=averages_per_month, aes(x=MONTH, y=T*coeff), col = 'red', fill='red', shape=23)+
+  geom_line(data=averages_per_month, aes(x=MONTH, y=T*coeff), col = 'red', size=1.5)+
+  geom_point(data=averages_per_month, aes(x=MONTH, y=T*coeff), col = 'red', fill='red', shape=23, size=2.5)+
   scale_x_discrete(limits=1:12,
                    name = 'Maand')+
   scale_y_continuous(name='gemiddelde regenval (mm)',
                    limits=c(0,150),
-                   sec.axis = sec_axis( trans=~./coeff, name="Temperature (°C)"))
+                   sec.axis = sec_axis( trans=~./coeff, name="Temperatuur (°C)"))+
+  theme(text=element_text(size=20))
 regen
 ```
 
@@ -238,23 +235,27 @@ Radiation balance, energy closure, Bowen ratio
 - Calculate the Bowen ratio (= Qh/Qle).
 ```{r }
 radiation_cycles <- data %>%
+  filter(YEAR>2007)%>%
   group_by(DayOfYear)%>%
   summarise(mean_RN = mean(RN,na.rm=TRUE),
             mean_QH = mean(QH, na.rm=TRUE),
             mean_QLE = mean(QLE, na.rm=TRUE),
-            mean_GF = mean(GF, na.rm=TRUE))
+            mean_GF = mean(GF, na.rm=TRUE),
+            mean_SW = mean(SWDOWN, na.rm=TRUE),
+            mean_LW = mean(LWDOWN, na.rm=TRUE))
 radiation_cycles <- pivot_longer(radiation_cycles, cols=contains('mean'),
                                  names_to = 'variables',
                                  values_to = 'values')
 #PLOT 4
 ggplot(data=radiation_cycles, aes(DayOfYear, values, colour=variables)) +
-  geom_line()+
-  scale_colour_discrete(labels=c('Ground Heat Flux', 'Sensible Heat Flux', 
-                               'Latent Heat Flux', 'Net Radiation'),
-                        name = 'variabelen')+
+  geom_line(size=1)+
+  scale_colour_discrete(labels=c('Ground Heat Flux','Long Wave Incoming', 'Sensible Heat Flux', 
+                               'Latent Heat Flux', 'Net Radiation', 'Short Wave Incoming'),
+                        name = '')+
   labs(x='Dag van het Jaar',
        y= 'straling (W/m²)',
-       title = 'stralingsverloop 2008')
+       title = 'gemiddeld stralings verloop (2008-2009)')+
+  theme(text=element_text(size=20))
 
 
 #PLOT 5
@@ -269,8 +270,9 @@ ggplot(P5_data, aes(x=RN_GF, y=QH_QLE))+
   stat_cor(label.x = 0, label.y=180)+
   geom_abline(intercept=0, slope=1, linetype=2)+
   labs(x= 'Rn - G (W/m²)', y='Qle + Qh (W/m²)',
-       title = 'Visualisatie Energieverlies 2008')
-
+       title = 'Visualisatie Energieverlies 2008')+
+  theme(text=element_text(size=15))
+gem_afwijking <- mean(P5_data$RN_GF-P5_data$QH_QLE)
 Bowen_ratio <- P5_data$QH/P5_data$QLE
 
 P4_2_data <- cbind(P5_data$DayOfYear, Bowen_ratio)
@@ -299,7 +301,8 @@ ggplot(P6_data, aes(x=DayOfYear, y=values, col=variables))+
   labs(x = 'Dag van het Jaar', y= 'C fluxen (kgC/m²/jaar)',
        title = 'gemiddelde C fluxen')+
   geom_hline(yintercept=0)+
-  scale_color_discrete(name='variabelen')
+  scale_color_discrete(name='')+
+  theme(text=element_text(size=15))
 
 ```
 
